@@ -1,12 +1,21 @@
+-- AUTO FISHING FISCH v8.2 ULTIMATE (Rayfield Edition)
+-- Multi-Platform Spot Rotation + Safe Mode
+-- Anti Luck Decay: Rotasi 3 spot otomatis
+-- Mobile Compatible UI via Rayfield
+-- v8.1: Optimized cast-after-catch delay
+-- v8.2: Direct re-equip in handler + faster main loop
+
+-- Load Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
-print("=== AUTO FISHING v8.0 ULTIMATE (Rayfield) ===")
-print("=== Multi-Platform Spot Rotation ===")
+print("=== AUTO FISHING v8.2 ULTIMATE (Rayfield) ===")
+print("=== Direct Re-equip + Fast Loop ===")
 
+-- Settings (defaults from screenshot)
 getgenv().AutoFishSettings = {
     Enabled = false,
     Debug = false,
@@ -272,7 +281,7 @@ local function unequipRod()
         humanoid:UnequipTools()
     end)
 
-    task.wait(0.15)
+    task.wait(0.05) -- v8.1: 0.15 -> 0.05
     State.rodEquipped = false
     State.currentRodName = "None"
     setState("Unequipped")
@@ -328,7 +337,7 @@ local function equipRod()
     end
 
     humanoid:EquipTool(rodTool)
-    task.wait(0.3)
+    task.wait(0.2) -- v8.2: 0.3 -> 0.2 equip confirm
 
     if not isRodEquipped() then
         warn("Equip failed")
@@ -346,7 +355,7 @@ local function equipRod()
             pcall(function()
                 toolReady:FireServer(tick())
             end)
-            task.wait(0.1)
+            task.wait(0.05) -- v8.2: 0.1 -> 0.05
         end
     end
 
@@ -667,8 +676,9 @@ local function canCast()
     if State.inMinigame then return false end
     if State.isEquipping then return false end
 
+    -- v8.1: 1.5s -> 0.4s anti-spam cooldown
     local timeSinceCast = tick() - State.lastCastTime
-    if timeSinceCast < 1.5 then return false end
+    if timeSinceCast < 0.4 then return false end
 
     local char = LocalPlayer.Character
     if not char then return false end
@@ -727,7 +737,7 @@ local function castRod()
         pcall(function()
             toolReady:FireServer(tick())
         end)
-        task.wait(0.25)
+        task.wait(0.1) -- v8.1: 0.25 -> 0.1
     end
 
     local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -916,10 +926,12 @@ function setupMinigame()
                                     setState("Caught #" .. Stats.fish)
                                     debug("Success!")
 
+                                    -- v8.2: Direct unequip + re-equip in handler
                                     if getgenv().AutoFishSettings.UnequipAfterCatch then
                                         task.wait(getgenv().AutoFishSettings.UnequipDelay)
                                         unequipRod()
                                         task.wait(getgenv().AutoFishSettings.ReequipDelay)
+                                        equipRod() -- v8.2: LANGSUNG equip di sini!
                                     end
                                 else
                                     debug("ERROR: Catch remote not found!")
@@ -938,7 +950,7 @@ function setupMinigame()
                             checkSpotRotation()
                         end
 
-                        task.wait(0.5)
+                        task.wait(0.05) -- v8.2: 0.15 -> 0.05 post-claim
 
                         State.inMinigame = false
                         State.isCasting = false
@@ -969,18 +981,19 @@ end
 local function startAutoFish()
     task.spawn(function()
         while true do
-            task.wait(0.5)
+            task.wait(0.1) -- v8.2: 0.2 -> 0.1 faster loop pickup
 
             if not getgenv().AutoFishSettings.Enabled then
                 continue
             end
 
+            -- v8.2: Rod missing fallback (bukan primary, handler udah handle)
             if not State.rodEquipped or not isRodEquipped() then
                 if not State.isEquipping and not State.inMinigame then
                     setState("Need rod")
                     equipRod()
                 end
-                task.wait(1)
+                task.wait(0.3) -- v8.2: 1.0 -> 0.3 fallback wait
                 continue
             end
 
@@ -997,7 +1010,7 @@ local function startAutoFish()
                 )
                 task.wait(cooldown)
             else
-                task.wait(1)
+                task.wait(0.5) -- v8.2: 1.0 -> 0.5 failed cast retry
             end
         end
     end)
@@ -1105,7 +1118,6 @@ local function applyPreset(presetData)
         end
     end
 
-    -- Update UI elements
     for key, value in pairs(presetData) do
         if key ~= "name" and UIElements[key] then
             pcall(function()
@@ -1120,9 +1132,9 @@ end
 -- ==================== RAYFIELD UI ====================
 
 local Window = Rayfield:CreateWindow({
-    Name = "Auto Fishing v8.0 | Spot Rotation",
-    LoadingTitle = "Auto Fishing v8.0",
-    LoadingSubtitle = "Multi-Platform Spot Rotation",
+    Name = "Auto Fishing v8.2 | Fast Loop",
+    LoadingTitle = "Auto Fishing v8.2",
+    LoadingSubtitle = "Direct Re-equip + Fast Loop",
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "AutoFishv8",
@@ -1715,7 +1727,6 @@ local UISettingsSection = SettingsTab:CreateSection("UI Settings")
 SettingsTab:CreateButton({
     Name = "Destroy UI",
     Callback = function()
-        -- Cleanup
         removeAllPlatforms()
         unlockCharacter()
         Rayfield:Destroy()
@@ -1729,6 +1740,6 @@ startAutoSell()
 startSafeMode()
 monitorRodChanges()
 
-print("=== AUTO FISHING v8.0 DRAX1E LOADED ===")
-print("=== Mobile Compatible ===")
-Rayfield:Notify({Title = "Auto Fishing v8.0", Content = "Loaded! Mobile compatible.", Duration = 3})
+print("=== AUTO FISHING v8.2 RAYFIELD LOADED ===")
+print("=== Direct Re-equip + Fast Loop ===")
+Rayfield:Notify({Title = "Auto Fishing v8.2", Content = "Loaded! Direct re-equip + fast loop.", Duration = 3})
