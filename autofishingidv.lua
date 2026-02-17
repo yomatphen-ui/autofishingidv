@@ -1,11 +1,3 @@
--- AUTO FISHING FISCH v8.2 ULTIMATE (Rayfield Edition)
--- Multi-Platform Spot Rotation + Safe Mode
--- Anti Luck Decay: Rotasi 3 spot otomatis
--- Mobile Compatible UI via Rayfield
--- v8.1: Optimized cast-after-catch delay
--- v8.2: Direct re-equip in handler + faster main loop
-
--- Load Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Players = game:GetService("Players")
