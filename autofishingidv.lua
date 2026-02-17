@@ -1132,9 +1132,9 @@ end
 -- ==================== RAYFIELD UI ====================
 
 local Window = Rayfield:CreateWindow({
-    Name = "Auto Fishing v8.2 | Fast Loop",
-    LoadingTitle = "Auto Fishing v8.2",
-    LoadingSubtitle = "Direct Re-equip + Fast Loop",
+    Name = "fuck Indovoice v3.0",
+    LoadingTitle = "draxie",
+    LoadingSubtitle = "fast but not blatant",
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "AutoFishv8",
